@@ -36,6 +36,18 @@ run in Compile := Defaults.runTask(
   runner in (Compile, run)
 )
 
+assemblyOption in assembly := (assemblyOption in assembly).value
+  .copy(includeScala = false)
+assemblyJarName in assembly := s"${name.value}_2.11-${sparkVersion}_${version.value}.jar"
+
+//assemblyShadeRules in assembly := Seq(
+//  ShadeRule
+//    .rename(
+//      "com.github.mrpowers.spark.daria.**" -> "shadedSparkDariaForSparkPika.@1"
+//    )
+//    .inAll
+//)
+
 //update your Intellij configuration to use `mainRunner` when running from Intellij (not the default)
 lazy val mainRunner = project
   .in(file("mainRunner"))
