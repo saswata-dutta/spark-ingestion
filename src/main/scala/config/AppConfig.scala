@@ -10,9 +10,7 @@ import com.typesafe.config.{Config, ConfigFactory}
 class AppConfig(config: Config) {
 
   //use default config on classpath if no config is passed here
-  def this(){
+  def this() {
     this(ConfigFactory.load())
   }
-
-  val master = config.getString("spark.master")
 }

@@ -1,7 +1,5 @@
 package drivers
 
-import java.io.File
-
 import com.typesafe.config.{Config, ConfigFactory}
 import config.AppConfig
 import org.apache.spark.SparkConf
@@ -11,53 +9,48 @@ import util.{IstTime, Logging}
 import scala.collection.JavaConversions._
 
 trait BaseDriver extends Logging {
-  val name: String = this.getClass.getName
+
+  val appName: String = this.getClass.getName
+
+  /*
+    should be implemented by the concrete job
+   */
+  def run(spark: SparkSession, config: AppConfig): Unit
 
   def main(args: Array[String]): Unit = {
     val (sparkConf, config) = loadConfig(args.headOption)
-    lazy val spark = SparkSession
-      .builder()
-      .appName(name)
-      .master(config.master)
-      .config(sparkConf)
-      .getOrCreate()
 
     val startTime = IstTime.now()
     logger.info("Started at " + startTime.toString)
-
+    val spark = createSpark(sparkConf)
     try {
       run(spark, config)
     } catch {
       case e: Exception =>
         logger.error("Failed to run Job ...", e)
     } finally {
+      spark.stop()
       val endTime = IstTime.now()
       logger.info("Finished at " + startTime.toString)
       logger.info(
-        "Time Taken " + (endTime.toEpochSecond - startTime.toEpochSecond)
+        s"Time Taken ${endTime.toEpochSecond - startTime.toEpochSecond} seconds"
       )
-      spark.stop()
     }
   }
 
-  def run(session: SparkSession, config: AppConfig): Unit
+  private def loadConfig(
+    maybeConfName: Option[String]
+  ): (SparkConf, AppConfig) = {
 
-  private def loadConfig(pathArg: Option[String]): (SparkConf, AppConfig) = {
-    val config: Config = pathArg
-      .map { path =>
-        val file = new File(path)
-        if (!file.exists()) {
-          throw new Exception(
-            "Config path " + file.getAbsolutePath + " doesn't exist!"
-          )
-        }
+    // load application.conf or reference.conf
+    val baseConfig = ConfigFactory.load()
+    val config: Config =
+      maybeConfName
+        .map(it => ConfigFactory.load(it).withFallback(baseConfig))
+        .getOrElse(baseConfig)
 
-        logger.info(s"Loading properties from " + file.getAbsolutePath)
-        ConfigFactory.load(ConfigFactory.parseFile(file).resolve())
-      }
-      .getOrElse {
-        ConfigFactory.load()
-      }
+    // for external file :
+    // ConfigFactory.load(ConfigFactory.parseFile(file).resolve())
 
     val sparkValues = config
       .entrySet()
@@ -67,17 +60,29 @@ trait BaseDriver extends Logging {
       }
       .toMap
     val sparkConf =
-      new SparkConf().setAppName(this.getClass.getName).setAll(sparkValues)
+      new SparkConf()
+        .setAppName(this.getClass.getSimpleName)
+        .setAll(sparkValues)
 
-    logger.info("Config ...")
+    logger.info("All Configs ...")
     (sparkConf.getAll.toSet ++ config
       .entrySet()
       .map(e => e.getKey -> e.getValue.unwrapped().toString)
-      .toSet).toList
+      .toSet)
       .filterNot(_._1.startsWith("akka."))
+      .toSeq
       .sortBy(_._1)
       .foreach(kv => logger.info(kv.toString()))
 
-    sparkConf -> new AppConfig(config)
+    val appConfig = new AppConfig(config)
+
+    (sparkConf, appConfig)
+  }
+
+  private def createSpark(sparkConf: SparkConf): SparkSession = {
+    SparkSession
+      .builder()
+      .config(sparkConf)
+      .getOrCreate()
   }
 }
