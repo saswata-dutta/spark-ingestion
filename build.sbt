@@ -13,9 +13,7 @@ val sparkDependencies = Seq(
 libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-core" % sparkVersion,
   "org.apache.spark" %% "spark-sql" % sparkVersion,
-  "com.typesafe" % "config" % "1.3.4",
-  "joda-time" % "joda-time" % "2.9.9",
-  "org.joda" % "joda-convert" % "1.9.2"
+  "com.typesafe" % "config" % "1.3.4"
 )
 
 lazy val commonSettings = Seq(

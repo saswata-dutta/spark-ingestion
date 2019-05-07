@@ -6,8 +6,7 @@ import com.typesafe.config.{Config, ConfigFactory}
 import config.AppConfig
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
-import org.joda.time.DateTime
-import util.Logging
+import util.{IstTime, Logging}
 
 import scala.collection.JavaConversions._
 
@@ -23,20 +22,19 @@ trait BaseDriver extends Logging {
       .config(sparkConf)
       .getOrCreate()
 
-    val startTime = DateTime.now()
+    val startTime = IstTime.now()
     logger.info("Started at " + startTime.toString)
 
     try {
       run(spark, config)
     } catch {
       case e: Exception =>
-        logger.error("ERROR", e)
-
+        logger.error("Failed to run Job ...", e)
     } finally {
-      val endTime = DateTime.now()
+      val endTime = IstTime.now()
+      logger.info("Finished at " + startTime.toString)
       logger.info(
-        "Finished at " + endTime
-          .toString() + ", took " + ((endTime.getMillis.toDouble - startTime.getMillis.toDouble) / 1000)
+        "Time Taken " + (endTime.toEpochSecond - startTime.toEpochSecond)
       )
       spark.stop()
     }
