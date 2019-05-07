@@ -1,0 +1,5 @@
+target/
+.idea
+.travis.yml
+project/project
+project/target
