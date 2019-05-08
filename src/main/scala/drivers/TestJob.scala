@@ -12,6 +12,6 @@ object TestJob extends BaseDriver {
                    source: BaseSource,
                    sink: BaseSink): Boolean = {
     val data: DataFrame = source.get(spark, appConfig)
-    sink.put(spark, appConfig, data)
+    sink.put(appConfig, data)
   }
 }

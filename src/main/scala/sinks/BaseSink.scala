@@ -1,10 +1,10 @@
 package sinks
 
 import config.AppConfig
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.DataFrame
 
 trait BaseSink {
-  def put(spark: SparkSession, config: AppConfig, data: DataFrame): Boolean
+  def put(config: AppConfig, data: DataFrame): Boolean
 }
 
 object BaseSink {
