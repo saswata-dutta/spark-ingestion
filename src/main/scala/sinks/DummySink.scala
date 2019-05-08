@@ -6,7 +6,9 @@ object DummySink extends BaseSink {
   override def put(config: AppConfig, data: DataFrame): Boolean = {
     // get owner spark session from DF itself
     //    val spark: SparkSession = data.sparkSession
-    data.foreach(it => println(it))
+    logger.info("Start Sink ...")
+    data.printSchema()
+    data.show(10000)
     true
   }
 }

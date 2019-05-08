@@ -2,8 +2,9 @@ package sources
 
 import config.AppConfig
 import org.apache.spark.sql.{DataFrame, SparkSession}
+import util.Logging
 
-trait BaseSource {
+trait BaseSource extends Logging {
   def get(spark: SparkSession, config: AppConfig): DataFrame
 }
 

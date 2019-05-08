@@ -2,8 +2,9 @@ package sinks
 
 import config.AppConfig
 import org.apache.spark.sql.DataFrame
+import util.Logging
 
-trait BaseSink {
+trait BaseSink extends Logging {
   def put(config: AppConfig, data: DataFrame): Boolean
 }
 
