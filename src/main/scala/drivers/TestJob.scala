@@ -18,8 +18,9 @@ object TestJob extends BaseDriver {
     sink.put(appConfig, newData)
   }
 
-  private def transformer(in: DataFrame): DataFrame = {
-    val isEven = functions.udf((i: Int) => i % 2 == 0)
-    in.withColumn("account_verified", isEven(in("amount")))
-  }
+  private def transformer(in: DataFrame): DataFrame =
+    in.withColumn(
+      "account_verified",
+      functions.when(in("amount") % 2 === false, false).otherwise(true)
+    )
 }
