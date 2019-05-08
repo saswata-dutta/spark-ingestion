@@ -8,7 +8,7 @@ import sinks.BaseSink
 import sources.BaseSource
 import util.{IstTime, Logging}
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 trait BaseDriver extends Logging {
 
@@ -52,24 +52,25 @@ trait BaseDriver extends Logging {
 
     // for external file :
     // ConfigFactory.load(ConfigFactory.parseFile(file).resolve())
-
-    val sparkValues = config
+    val configKeyValues: Set[(String, String)] = config
       .entrySet()
-      .collect {
-        case e if e.getKey.startsWith("spark") =>
-          e.getKey -> e.getValue.unwrapped().toString
-      }
-      .toMap
+      .asScala
+      .map(e => (e.getKey, e.getValue.unwrapped().toString))
+      .toSet
+
+    val sparkValues =
+      configKeyValues.filter(_._1.startsWith("spark.")).toMap
+
     val sparkConf =
       new SparkConf()
         .setAppName(this.getClass.getSimpleName)
         .setAll(sparkValues)
 
+    logger.info("Spark Conf ...")
+    sparkConf.getAll.foreach(kv => logger.info(kv.toString()))
+
     logger.info("All Configs ...")
-    (sparkConf.getAll.toSet ++ config
-      .entrySet()
-      .map(e => e.getKey -> e.getValue.unwrapped().toString)
-      .toSet)
+    configKeyValues
       .filterNot(_._1.startsWith("akka."))
       .toSeq
       .sortBy(_._1)
