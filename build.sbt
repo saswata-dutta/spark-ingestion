@@ -7,14 +7,11 @@ val sparkVersion = "2.4.0"
 
 val sparkDependencies = Seq(
   "org.apache.spark" %% "spark-core" % sparkVersion,
-  "org.apache.spark" %% "spark-hive" % sparkVersion
+  "org.apache.spark" %% "spark-sql" % sparkVersion
 )
 
-libraryDependencies ++= Seq(
-  "org.apache.spark" %% "spark-core" % sparkVersion,
-  "org.apache.spark" %% "spark-sql" % sparkVersion,
-  "com.typesafe" % "config" % "1.3.4"
-)
+libraryDependencies ++= sparkDependencies.map(_ % "provided")
+libraryDependencies ++= Seq("com.typesafe" % "config" % "1.3.4")
 
 lazy val commonSettings = Seq(
   scalaVersion := "2.11.12",
@@ -23,8 +20,6 @@ lazy val commonSettings = Seq(
 )
 
 commonSettings
-
-libraryDependencies ++= sparkDependencies.map(_ % "provided")
 
 outputStrategy := Some(StdoutOutput)
 
@@ -37,6 +32,13 @@ run in Compile := Defaults.runTask(
 assemblyOption in assembly := (assemblyOption in assembly).value
   .copy(includeScala = false)
 assemblyJarName in assembly := s"${name.value}_2.11-${sparkVersion}_${version.value}.jar"
+assemblyMergeStrategy in assembly := {
+  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+  case "application.conf"            => MergeStrategy.concat
+  case x =>
+    val oldStrategy = (assemblyMergeStrategy in assembly).value
+    oldStrategy(x)
+}
 
 //assemblyShadeRules in assembly := Seq(
 //  ShadeRule
