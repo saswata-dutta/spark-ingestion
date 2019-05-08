@@ -9,6 +9,7 @@ trait BaseSource extends Logging {
 }
 
 object BaseSource {
+
   def apply(config: AppConfig): BaseSource = {
     val sinkType: String = config.conf.getConfig("sink").getString("type")
     sinkType match {

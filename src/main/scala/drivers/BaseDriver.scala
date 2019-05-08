@@ -17,12 +17,9 @@ trait BaseDriver extends Logging {
   /*
     should be implemented by the concrete job
    */
-  def run(spark: SparkSession,
-          appConfig: AppConfig,
-          source: BaseSource,
-          sink: BaseSink): Boolean
+  def run(spark: SparkSession, appConfig: AppConfig, source: BaseSource, sink: BaseSink): Boolean
 
-  def main(args: Array[String]): Unit = {
+  final def main(args: Array[String]): Unit = {
     val (sparkConf, config) = loadConfig(args.headOption)
     val source = BaseSource(config)
     val sink = BaseSink(config)
@@ -31,7 +28,8 @@ trait BaseDriver extends Logging {
     logger.info("Started at " + startTime.toString)
     val spark = createSpark(sparkConf)
     try {
-      run(spark, config, source, sink)
+      val ok = run(spark, config, source, sink)
+      logger.info(s"Job success ... $ok")
     } catch {
       case e: Exception =>
         logger.error("Failed to run Job ...", e)
@@ -39,15 +37,11 @@ trait BaseDriver extends Logging {
       spark.stop()
       val endTime = IstTime.now()
       logger.info("Finished at " + startTime.toString)
-      logger.info(
-        s"Time Taken ${endTime.toEpochSecond - startTime.toEpochSecond} seconds"
-      )
+      logger.info(s"Time Taken ${endTime.toEpochSecond - startTime.toEpochSecond} seconds")
     }
   }
 
-  private def loadConfig(
-    maybeConfName: Option[String]
-  ): (SparkConf, AppConfig) = {
+  private def loadConfig(maybeConfName: Option[String]): (SparkConf, AppConfig) = {
 
     // load application.conf or reference.conf
     val baseConfig = ConfigFactory.load()
@@ -86,10 +80,9 @@ trait BaseDriver extends Logging {
     (sparkConf, appConfig)
   }
 
-  private def createSpark(sparkConf: SparkConf): SparkSession = {
+  private def createSpark(sparkConf: SparkConf): SparkSession =
     SparkSession
       .builder()
       .config(sparkConf)
       .getOrCreate()
-  }
 }

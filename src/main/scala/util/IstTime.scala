@@ -8,6 +8,7 @@ object IstTime {
   private def currentInstant(): Instant = Instant.now()
   def now(): ZonedDateTime = currentInstant().atZone(IST)
   def currentMillis(): Long = currentInstant().toEpochMilli
+
   def fromEpochSeconds(epochSeconds: Long): ZonedDateTime = {
     val i = Instant.ofEpochSecond(epochSeconds)
     ZonedDateTime.ofInstant(i, IST)
