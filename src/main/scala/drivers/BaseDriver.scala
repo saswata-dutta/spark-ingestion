@@ -4,6 +4,8 @@ import com.typesafe.config.{Config, ConfigFactory}
 import config.AppConfig
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
+import sinks.BaseSink
+import sources.BaseSource
 import util.{IstTime, Logging}
 
 import scala.collection.JavaConversions._
@@ -15,16 +17,21 @@ trait BaseDriver extends Logging {
   /*
     should be implemented by the concrete job
    */
-  def run(spark: SparkSession, config: AppConfig): Unit
+  def run(spark: SparkSession,
+          appConfig: AppConfig,
+          source: BaseSource,
+          sink: BaseSink): Boolean
 
   def main(args: Array[String]): Unit = {
     val (sparkConf, config) = loadConfig(args.headOption)
+    val source = BaseSource(config)
+    val sink = BaseSink(config)
 
     val startTime = IstTime.now()
     logger.info("Started at " + startTime.toString)
     val spark = createSpark(sparkConf)
     try {
-      run(spark, config)
+      run(spark, config, source, sink)
     } catch {
       case e: Exception =>
         logger.error("Failed to run Job ...", e)

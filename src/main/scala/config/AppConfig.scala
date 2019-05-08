@@ -7,7 +7,7 @@ import com.typesafe.config.{Config, ConfigFactory}
   *
   * Fail fast when dealing with config values!
   */
-class AppConfig(config: Config) {
+class AppConfig(val conf: Config) {
 
   //use default config on classpath if no config is passed here
   def this() {
