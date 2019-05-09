@@ -43,7 +43,7 @@ trait BaseDriver extends Logging {
 
   private def loadConfig(args: Array[String]): (SparkConf, AppConfig) = {
     val cmdArgs = parseArgs(args)
-    logger.info("Spark Conf ...")
+    logger.info("Cmd Args ...")
     cmdArgs.foreach(it => logger.info(it))
 
     val maybeConfName = cmdArgs.get("--conf-file")

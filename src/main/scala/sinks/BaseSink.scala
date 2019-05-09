@@ -11,7 +11,7 @@ trait BaseSink extends Logging {
 object BaseSink {
 
   def apply(config: AppConfig): BaseSink = {
-    val sinkType: String = config.conf.getConfig("source").getString("type")
+    val sinkType: String = config.conf.getConfig("sink").getString("type")
     sinkType match {
       case "dummy" => DummySink
     }

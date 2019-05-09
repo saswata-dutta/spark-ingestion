@@ -10,15 +10,18 @@ val sparkDependencies = Seq(
 )
 
 libraryDependencies ++= sparkDependencies.map(_ % "provided")
-libraryDependencies ++= Seq("com.typesafe" % "config" % "1.3.4")
+libraryDependencies ++= Seq(
+  "com.typesafe" % "config" % "1.3.4",
+  "org.mongodb.spark" %% "mongo-spark-connector" % "2.4.0"
+)
 
 lazy val commonSettings = Seq(
   scalaVersion := "2.11.12",
   resolvers ++= Seq(
-    Resolver.mavenLocal,
-    Resolver.typesafeRepo("releases"),
-    "Artima Maven Repository" at "https://repo.artima.com/releases"
-  )
+      Resolver.mavenLocal,
+      Resolver.typesafeRepo("releases"),
+      "Artima Maven Repository" at "https://repo.artima.com/releases"
+    )
 )
 commonSettings
 
@@ -120,5 +123,3 @@ wartremoverWarnings in (Compile, compile) ++= Seq(
 )
 
 scapegoatVersion in ThisBuild := "1.3.8"
-
-

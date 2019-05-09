@@ -11,9 +11,10 @@ trait BaseSource extends Logging {
 object BaseSource {
 
   def apply(config: AppConfig): BaseSource = {
-    val sinkType: String = config.conf.getConfig("sink").getString("type")
-    sinkType match {
-      case "dummy" => DummySource
+    val sourceType: String = config.conf.getConfig("source").getString("type")
+    sourceType match {
+      case "dummy"   => DummySource
+      case "mongodb" => MongoSource
     }
   }
 }
