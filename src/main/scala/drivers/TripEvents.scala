@@ -15,13 +15,13 @@ object TripEvents extends BaseDriver {
     source: BaseSource,
     sink: BaseSink
   ): Boolean = {
-    import spark.implicits._
     val data: DataFrame = source.get(spark, appConfig)
     val startEpoch = appConfig.args.getOrElse("--start-epoch", "0")
     val endEpoch = appConfig.args.getOrElse("--end-epoch", "0")
-    logger.info(s"Fetching $startEpoch <= event_epoch < $endEpoch ...")
+    val timeCol = appConfig.conf.getConfig("record").getString("time_col")
+    logger.info(s"Fetching $startEpoch <= $timeCol < $endEpoch ...")
     val newData =
-      data.where($"event_epoch" >= startEpoch && $"event_epoch" < endEpoch)
+      data.where(data(timeCol).geq(startEpoch) && data(timeCol).lt(endEpoch))
     sink.put(appConfig, newData)
   }
 }
