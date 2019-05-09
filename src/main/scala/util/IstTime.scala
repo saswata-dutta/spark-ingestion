@@ -2,6 +2,8 @@ package util
 
 import java.time.{Instant, ZoneId, ZonedDateTime}
 
+import scala.util.Try
+
 object IstTime {
   private val IST = ZoneId.of("Asia/Kolkata")
 
@@ -18,4 +20,7 @@ object IstTime {
     val dt = fromEpochSeconds(epochSeconds)
     (dt.getYear, dt.getMonthValue, dt.getDayOfMonth)
   }
+
+  def guessEpochSecs(epoch: Any): Try[Long] =
+    Try(epoch.toString.take(10).toLong).filter(_ > 1000000000)
 }
