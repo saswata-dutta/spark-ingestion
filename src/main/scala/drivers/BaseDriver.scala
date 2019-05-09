@@ -20,7 +20,7 @@ trait BaseDriver extends Logging {
   def run(spark: SparkSession, appConfig: AppConfig, source: BaseSource, sink: BaseSink): Boolean
 
   final def main(args: Array[String]): Unit = {
-    val (sparkConf, config) = loadConfig(args.headOption)
+    val (sparkConf, config) = loadConfig(args)
     val source = BaseSource(config)
     val sink = BaseSink(config)
 
@@ -41,8 +41,12 @@ trait BaseDriver extends Logging {
     }
   }
 
-  private def loadConfig(maybeConfName: Option[String]): (SparkConf, AppConfig) = {
+  private def loadConfig(args: Array[String]): (SparkConf, AppConfig) = {
+    val cmdArgs = parseArgs(args)
+    logger.info("Spark Conf ...")
+    cmdArgs.foreach(it => logger.info(it))
 
+    val maybeConfName = cmdArgs.get("--conf-file")
     // load application.conf or reference.conf
     val baseConfig = ConfigFactory.load()
     val config: Config =
@@ -76,10 +80,13 @@ trait BaseDriver extends Logging {
       .sortBy(_._1)
       .foreach(kv => logger.info(kv.toString()))
 
-    val appConfig = new AppConfig(config)
+    val appConfig = new AppConfig(config, cmdArgs)
 
     (sparkConf, appConfig)
   }
+
+  private def parseArgs(args: Array[String]): Map[String, String] =
+    args.grouped(2).filter(_.length == 2).map(it => (it(0), it(1))).toMap
 
   private def createSpark(sparkConf: SparkConf): SparkSession =
     SparkSession
