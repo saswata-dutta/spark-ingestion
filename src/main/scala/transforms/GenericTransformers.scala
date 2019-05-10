@@ -2,7 +2,7 @@ package transforms
 
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.col
-import org.apache.spark.sql.types.DoubleType
+import org.apache.spark.sql.types.{BooleanType, DoubleType}
 
 object GenericTransformers {
 
@@ -12,8 +12,17 @@ object GenericTransformers {
   def castToDouble(numericCols: Set[String], df: DataFrame): DataFrame =
     numericCols.foldLeft(df)((newDf, c) => newDf.withColumn(c, col(c).cast(DoubleType)))
 
-  def sanitise(timeCols: Set[String], numericCols: Set[String], df: DataFrame): DataFrame = {
+  def castToBool(boolCols: Set[String], df: DataFrame): DataFrame =
+    boolCols.foldLeft(df)((newDf, c) => newDf.withColumn(c, col(c).cast(BooleanType)))
+
+  def sanitise(
+    timeCols: Set[String],
+    numericCols: Set[String],
+    boolCols: Set[String],
+    df: DataFrame
+  ): DataFrame = {
     val fixedEpochs = fixEpochs(timeCols, df)
-    castToDouble(numericCols, fixedEpochs)
+    val fixedNumerics = castToDouble(numericCols, fixedEpochs)
+    castToBool(boolCols, fixedNumerics)
   }
 }

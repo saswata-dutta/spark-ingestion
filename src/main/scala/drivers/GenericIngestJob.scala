@@ -31,11 +31,14 @@ object GenericIngestJob extends BaseDriver {
     logger.info(s"Will fix epochs : $epochCols")
     val numericCols = schemaConfig.getStringList("numeric_cols").asScala.toSet
     logger.info(s"Will cast to Double $numericCols")
+    val boolCols = schemaConfig.getStringList("bool_cols").asScala.toSet
+    logger.info(s"Will cast to Boolean $boolCols")
 
     val newData =
       GenericTransformers
-        .sanitise(epochCols, numericCols, data)
+        .sanitise(epochCols, numericCols, boolCols, data)
         .where(data(timeCol).geq(startEpoch) && data(timeCol).lt(endEpoch)) // where is run before any udf
+
     sink.put(appConfig, newData)
   }
 }

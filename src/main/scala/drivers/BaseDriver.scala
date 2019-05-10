@@ -43,6 +43,7 @@ trait BaseDriver extends Logging {
 
   private def loadConfig(args: Array[String]): (SparkConf, AppConfig) = {
     val cmdArgs = parseArgs(args)
+    // TODO local conf cmd flag and read flags for local running
     logger.info("Cmd Args ...")
     cmdArgs.foreach(it => logger.info(it))
 
