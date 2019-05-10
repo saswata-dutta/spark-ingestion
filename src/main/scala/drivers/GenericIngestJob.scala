@@ -27,9 +27,14 @@ object GenericIngestJob extends BaseDriver {
 
     val data: DataFrame = source.get(spark, appConfig)
     val epochCols = schemaConfig.getStringList("epoch_cols").asScala.toSet
+    assert(epochCols.contains(timeCol), s"$timeCol is not present in $epochCols")
+    logger.info(s"Will fix epochs : $epochCols")
+    val numericCols = schemaConfig.getStringList("numeric_cols").asScala.toSet
+    logger.info(s"Will cast to Double $numericCols")
+
     val newData =
       GenericTransformers
-        .fixEpochs(epochCols, data)
+        .sanitise(epochCols, numericCols, data)
         .where(data(timeCol).geq(startEpoch) && data(timeCol).lt(endEpoch)) // where is run before any udf
     sink.put(appConfig, newData)
   }
