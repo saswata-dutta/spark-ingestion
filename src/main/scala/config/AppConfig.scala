@@ -13,4 +13,6 @@ class AppConfig(val conf: Config, val args: Map[String, String]) {
   def this() {
     this(ConfigFactory.load(), Map.empty[String, String])
   }
+
+  def isLocal: Boolean = args.get("--local").contains("true")
 }

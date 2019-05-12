@@ -46,10 +46,13 @@ trait BaseDriver extends Logging {
     // TODO local conf cmd flag and read flags for local running
     logger.info("Cmd Args ...")
     cmdArgs.foreach(it => logger.info(it))
+    val isLocal = cmdArgs.get("--local").contains("true")
 
     val maybeConfName = cmdArgs.get("--conf-file")
-    // load application.conf or reference.conf
-    val baseConfig = ConfigFactory.load()
+    // loads application.conf or reference.conf
+    val defaultConfig = ConfigFactory.load()
+    val baseConfig =
+      if (isLocal) ConfigFactory.load("local.conf").withFallback(defaultConfig) else defaultConfig
     val config: Config =
       maybeConfName
         .map(it => ConfigFactory.load(it).withFallback(baseConfig))
@@ -71,7 +74,7 @@ trait BaseDriver extends Logging {
         .setAppName(this.getClass.getSimpleName)
         .setAll(sparkValues)
 
-    logger.info("Spark Conf ...")
+    logger.info("Supplied Spark Conf ...")
     sparkConf.getAll.foreach(kv => logger.info(kv.toString()))
 
     logger.info("All Configs ...")
@@ -89,9 +92,15 @@ trait BaseDriver extends Logging {
   private def parseArgs(args: Array[String]): Map[String, String] =
     args.grouped(2).filter(_.length == 2).map(it => (it(0), it(1))).toMap
 
-  private def createSpark(sparkConf: SparkConf): SparkSession =
-    SparkSession
+  private def createSpark(sparkConf: SparkConf): SparkSession = {
+    val spark: SparkSession = SparkSession
       .builder()
       .config(sparkConf)
       .getOrCreate()
+
+    logger.info("Spark Initialised with conf ...")
+    spark.sparkContext.getConf.getAll.foreach { case (k, v) => logger.info(s"$k = $v") }
+
+    spark
+  }
 }
