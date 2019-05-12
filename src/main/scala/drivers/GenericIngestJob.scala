@@ -9,7 +9,7 @@ import transforms.GenericTransformers
 import scala.collection.JavaConverters._
 
 /*
---class drivers.GenericIngestJob --conf-file trip_events.conf --start-epoch 1557340200000000 --end-epoch 1557426600000000
+--class drivers.GenericIngestJob --conf-file trip_events.conf --start-epoch 1557340200 --stop-epoch 1557426600
  */
 object GenericIngestJob extends BaseDriver {
   override def run(
@@ -20,10 +20,11 @@ object GenericIngestJob extends BaseDriver {
   ): Boolean = {
     val schemaConfig = appConfig.conf.getConfig("schema")
 
-    val startEpoch = appConfig.args.getOrElse("--start-epoch", "0")
-    val endEpoch = appConfig.args.getOrElse("--end-epoch", "0")
+    val timeUnit = schemaConfig.getString("time_partition_col_unit")
+    val startEpoch = appConfig.startTime(timeUnit)
+    val stopEpoch = appConfig.stopTime(timeUnit)
     val timeCol = schemaConfig.getString("time_partition_col")
-    logger.info(s"Fetching $startEpoch <= $timeCol < $endEpoch ...")
+    logger.info(s"Fetching $startEpoch <= $timeCol < $stopEpoch ...")
 
     val data: DataFrame = source.get(spark, appConfig)
     val epochCols = schemaConfig.getStringList("epoch_cols").asScala.toSet
@@ -37,7 +38,7 @@ object GenericIngestJob extends BaseDriver {
     val newData =
       GenericTransformers
         .sanitise(epochCols, numericCols, boolCols, data)
-        .where(data(timeCol).geq(startEpoch) && data(timeCol).lt(endEpoch)) // where is run before any udf
+        .where(data(timeCol).geq(startEpoch) && data(timeCol).lt(stopEpoch)) // where is run before any udf
 
     sink.put(appConfig, newData)
   }
