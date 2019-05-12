@@ -5,7 +5,12 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 import util.Logging
 
 trait BaseSource extends Logging {
-  def get(spark: SparkSession, config: AppConfig): DataFrame
+
+  def get(
+    spark: SparkSession,
+    config: AppConfig,
+    params: Map[String, String] = Map.empty[String, String]
+  ): DataFrame
 }
 
 object BaseSource {
