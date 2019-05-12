@@ -19,6 +19,7 @@ object BaseSink {
     val sinkType: String = config.conf.getConfig("sink").getString("type")
     sinkType match {
       case "dummy" => DummySink
+      case "s3"    => S3Sink
     }
   }
 }

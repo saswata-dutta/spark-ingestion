@@ -19,6 +19,7 @@ object IstTime {
   def currentMillis(): Long = currentInstant().toEpochMilli
 
   def epochSecsToZdt(epochSeconds: Long): ZonedDateTime = {
+    require(epochSeconds >= EPOCH_SEC_THRESHOLD)
     val i = Instant.ofEpochSecond(epochSeconds)
     ZonedDateTime.ofInstant(i, IST)
   }
@@ -41,4 +42,12 @@ object IstTime {
 
   def scaleEpochSecs(epochSecs: Long, unit: String): Long =
     epochSecs * TIME_UNITS(unit)
+
+  def partitionFolder(epoch: Long): String =
+    guessEpochSecs(epoch)
+      .map(e => ymd(e))
+      .map {
+        case (y, m, d) => f"y=$y%04d/m=$m%02d/d=$d%02d"
+      }
+      .getOrElse("")
 }

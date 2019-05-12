@@ -25,4 +25,5 @@ object GenericTransformers {
     val fixedNumerics = castToDouble(numericCols, fixedEpochs)
     castToBool(boolCols, fixedNumerics)
   }
+
 }

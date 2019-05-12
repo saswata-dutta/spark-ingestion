@@ -47,4 +47,8 @@ class IstTimeSpec extends FlatSpec {
     assert(scaleEpochSecs(sampleEpoch, "ns") === sampleEpoch * 1000000000L)
   }
 
+  it should "generate partition from epoch" in {
+    val epochMs: Long = 1557645276123123L
+    assert(partitionFolder(epochMs) === "y=2019/m=05/d=12")
+  }
 }

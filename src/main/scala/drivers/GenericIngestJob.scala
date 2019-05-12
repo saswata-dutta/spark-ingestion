@@ -5,6 +5,7 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 import sinks.BaseSink
 import sources.BaseSource
 import transforms.GenericTransformers
+import util.IstTime
 
 import scala.collection.JavaConverters._
 
@@ -21,12 +22,12 @@ object GenericIngestJob extends BaseDriver {
     val schemaConfig = appConfig.conf.getConfig("schema")
 
     val timeUnit = schemaConfig.getString("time_partition_col_unit")
-    val startEpoch = appConfig.startTime(timeUnit)
-    val stopEpoch = appConfig.stopTime(timeUnit)
+    val startTime = appConfig.startTime(timeUnit)
+    val stopTime = appConfig.stopTime(timeUnit)
     val timeCol = schemaConfig.getString("time_partition_col")
-    logger.info(s"Fetching $startEpoch <= $timeCol < $stopEpoch ...")
-
+    logger.info(s"Fetching $startTime <= $timeCol < $stopTime ...")
     val data: DataFrame = source.get(spark, appConfig)
+
     val epochCols = schemaConfig.getStringList("epoch_cols").asScala.toSet
     assert(epochCols.contains(timeCol), s"$timeCol is not present in $epochCols")
     logger.info(s"Will fix epochs : $epochCols")
@@ -38,8 +39,9 @@ object GenericIngestJob extends BaseDriver {
     val newData =
       GenericTransformers
         .sanitise(epochCols, numericCols, boolCols, data)
-        .where(data(timeCol).geq(startEpoch) && data(timeCol).lt(stopEpoch)) // where is run before any udf
+        .where(data(timeCol).geq(startTime) && data(timeCol).lt(stopTime)) // where is run before any udf
 
-    sink.put(appConfig, newData)
+    val partition: String = IstTime.partitionFolder(startTime)
+    sink.put(appConfig, newData, Map("partition" -> partition))
   }
 }
