@@ -14,6 +14,8 @@ libraryDependencies ++= Seq(
   "com.typesafe" % "config" % "1.3.4",
   "org.mongodb.spark" %% "mongo-spark-connector" % "2.4.0"
 )
+libraryDependencies += "org.scalactic" %% "scalactic" % "3.0.5"
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % "test"
 
 lazy val commonSettings = Seq(
   scalaVersion := "2.11.12",
