@@ -53,6 +53,8 @@ lazy val mainRunner = project
   .settings(
     commonSettings,
     libraryDependencies ++= sparkDependencies.map(_ % "compile"),
+    libraryDependencies += "org.apache.hadoop" % "hadoop-aws" % "2.7.3",
+    libraryDependencies += "com.amazonaws" % "aws-java-sdk" % "1.7.4.2",
     assembly := new File(""),
     publish := {},
     publishLocal := {}

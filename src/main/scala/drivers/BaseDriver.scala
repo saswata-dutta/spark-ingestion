@@ -27,6 +27,7 @@ trait BaseDriver extends Logging {
     val startTime = IstTime.now()
     logger.info("Started at " + startTime.toString)
     val spark = createSpark(sparkConf)
+
     try {
       val ok = run(spark, config, source, sink)
       logger.info(s"Job success ... $ok")
@@ -71,7 +72,6 @@ trait BaseDriver extends Logging {
 
     val sparkConf =
       new SparkConf()
-        .setAppName(this.getClass.getSimpleName)
         .setAll(sparkValues)
 
     logger.info("Supplied Spark Conf ...")
