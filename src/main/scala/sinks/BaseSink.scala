@@ -5,7 +5,12 @@ import org.apache.spark.sql.DataFrame
 import util.Logging
 
 trait BaseSink extends Logging {
-  def put(config: AppConfig, data: DataFrame): Boolean
+
+  def put(
+    appConfig: AppConfig,
+    data: DataFrame,
+    params: Map[String, String] = Map.empty[String, String]
+  ): Boolean
 }
 
 object BaseSink {
