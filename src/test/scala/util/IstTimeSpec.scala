@@ -51,4 +51,9 @@ class IstTimeSpec extends FlatSpec {
     val epochMs: Long = 1557645276123123L
     assert(partitionFolder(epochMs) === "y=2019/m=05/d=12")
   }
+
+  it should "generate partition folders between epochs" in {
+    val folders = partitionFolders(sampleEpoch, sampleEpoch + 259200L).toVector
+    assert(folders === Vector("y=2019/m=05/d=12", "y=2019/m=05/d=13", "y=2019/m=05/d=14"))
+  }
 }
