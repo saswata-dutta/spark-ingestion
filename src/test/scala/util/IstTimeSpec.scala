@@ -56,4 +56,17 @@ class IstTimeSpec extends FlatSpec {
     val folders = partitionFolders(sampleEpoch, sampleEpoch + 259200L).toVector
     assert(folders === Vector("y=2019/m=05/d=12", "y=2019/m=05/d=13", "y=2019/m=05/d=14"))
   }
+
+  it should "guess Epoch Ms" in {
+    val sampleMillis: Long = 1557645276123L
+    assert(guessEpochMillis(sampleMillis).get === sampleMillis)
+    assert(guessEpochMillis(sampleMillis * 1000 + 123).get === sampleMillis)
+    assert(guessEpochMillis(sampleMillis * 1000000 + 123123).get === sampleMillis)
+    assert(guessEpochMillis(sampleMillis.toString).get === sampleMillis)
+    assert(guessEpochMillis(sampleMillis.toString + ".0").get === sampleMillis)
+    assert(guessEpochMillis(sampleMillis.toString + ".123").get === sampleMillis)
+    assert(guessEpochMillis(sampleMillis.toString + ".123456").get === sampleMillis)
+    assert(guessEpochMillis(sampleMillis.toString + "123").get === sampleMillis)
+    assert(guessEpochMillis(sampleMillis.toString + "123456").get === sampleMillis)
+  }
 }
