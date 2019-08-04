@@ -19,6 +19,7 @@ final class AppConfig(conf: Config, args: Map[String, String]) {
   }
 
   val isLocal: Boolean = args.get(AppConfig.KeyNames.LOCAL).exists(_.toBoolean)
+  val noSsm: Boolean = args.get(AppConfig.KeyNames.NO_SSM).exists(_.toBoolean)
   val startDateOpt: Option[String] = args.get(AppConfig.KeyNames.START_DATE)
   val s3Suffix: String = args.getOrElse(AppConfig.KeyNames.S3_SUFFIX, "")
 
@@ -83,6 +84,7 @@ object AppConfig {
     val CONF_FILE: String = "--conf-file"
     val LOCAL_CONF: String = "local.conf"
     val S3_SUFFIX: String = "--s3-suffix"
+    val NO_SSM: String = "--no-ssm"
 
     val EPOCH_COLS: String = "epoch_cols"
     val NUMERIC_COLS: String = "numeric_cols"

@@ -39,7 +39,7 @@ object BaseSource {
   final case class Credentials(user: String, password: String)
 
   def credentials(config: AppConfig): Credentials =
-    if (config.isLocal) localCredentials(config) else ssmCredentials(config)
+    if (config.noSsm) localCredentials(config) else ssmCredentials(config)
 
   def localCredentials(config: AppConfig): Credentials =
     Credentials(
