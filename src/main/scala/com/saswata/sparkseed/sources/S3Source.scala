@@ -29,29 +29,36 @@ object S3Source extends BaseSource {
   def getReader(spark: SparkSession, format: String, sourceConfig: Config): DataFrameReader =
     format match {
       case AppConfig.KeyNames.CSV =>
-        spark.read
-          .format(AppConfig.KeyNames.CSV)
-          .option(
-            "header",
-            Try(sourceConfig.getBoolean(AppConfig.KeyNames.CSV_HEADER)).getOrElse(true)
-          )
-          .option(
-            "inferSchema",
-            Try(sourceConfig.getBoolean(AppConfig.KeyNames.CSV_INF_SCHEMA)).getOrElse(true)
-          )
-          .option(
-            "delimiter",
-            Try(sourceConfig.getString(AppConfig.KeyNames.CSV_DELIM)).getOrElse(",")
-          )
-          .option(
-            "quote",
-            Try(sourceConfig.getString(AppConfig.KeyNames.CSV_QUOTE)).getOrElse("\"")
-          )
-          .option("escape", Try(sourceConfig.getString(AppConfig.KeyNames.CSV_ESC)).getOrElse("\\"))
-          .option("mode", "DROPMALFORMED")
+        val options =
+          Seq(
+            AppConfig.KeyNames.CSV_HEADER,
+            AppConfig.KeyNames.CSV_INF_SCHEMA,
+            AppConfig.KeyNames.CSV_DELIM,
+            AppConfig.KeyNames.CSV_QUOTE,
+            AppConfig.KeyNames.CSV_ESC,
+            AppConfig.KeyNames.CSV_MODE
+          ).map(it => it -> Try(sourceConfig.getString(it)).toOption)
+            .collect { case (k, Some(v)) => (k, v) }
+            .toMap
+
+        csvReader(spark, options)
 
       case AppConfig.KeyNames.PARQUET =>
         spark.read
           .format(AppConfig.KeyNames.PARQUET)
     }
+
+  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
+  def csvReader(
+    spark: SparkSession,
+    options: Map[String, String] = Map.empty[String, String]
+  ): DataFrameReader = {
+    val reader = spark.read
+      .format(AppConfig.KeyNames.CSV)
+
+    options.foldLeft(reader) {
+      case (rdr, (k, v)) =>
+        rdr.option(k, v)
+    }
+  }
 }

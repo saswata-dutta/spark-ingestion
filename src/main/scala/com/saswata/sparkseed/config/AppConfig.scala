@@ -121,6 +121,7 @@ object AppConfig {
     val CSV_QUOTE = "quote"
     val CSV_ESC = "escape"
     val CSV_INF_SCHEMA = "inferSchema"
+    val CSV_MODE = "mode"
 
     val PARQUET = "parquet"
   }
