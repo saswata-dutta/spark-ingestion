@@ -2,8 +2,10 @@ package com.saswata.sparkseed.config
 
 import com.saswata.sparkseed.util.IstTime
 import com.typesafe.config.{Config, ConfigFactory}
+import org.apache.spark.sql.types.{DataType, StructType}
 
 import scala.collection.JavaConverters._
+import scala.util.Try
 
 /**
   * Inspired by
@@ -59,6 +61,11 @@ final class AppConfig(conf: Config, args: Map[String, String]) {
     )
     cols
   }
+
+  val explicitSchema: Option[StructType] = Try {
+    val schemaJson = schemaConfig.getString(AppConfig.KeyNames.SCHEMA_JSON)
+    DataType.fromJson(schemaJson)
+  }.toOption.collect { case any: StructType => any }
 }
 
 object AppConfig {
@@ -93,6 +100,7 @@ object AppConfig {
     val TIME_COL: String = "time_partition_col"
     val TIME_COL_U: String = "time_partition_col_unit"
     val FLATTEN: String = "flatten"
+    val SCHEMA_JSON: String = "schema_json"
 
     val TYPE: String = "type"
     val DUMMY: String = "dummy"
