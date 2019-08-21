@@ -125,14 +125,14 @@ object AppConfig {
     val FORMAT: String = "format"
     val SAVE_MODE: String = "save_mode"
 
-    val CSV = "csv"
-    val CSV_HEADER = "header"
-    val CSV_DELIM = "delimiter"
-    val CSV_QUOTE = "quote"
-    val CSV_ESC = "escape"
-    val CSV_INF_SCHEMA = "inferSchema"
-    val CSV_MODE = "mode"
+    val CSV: String = "csv"
+    val CSV_HEADER: String = "header"
+    val CSV_DELIM: String = "delimiter"
+    val CSV_QUOTE: String = "quote"
+    val CSV_ESC: String = "escape"
+    val CSV_INF_SCHEMA: String = "inferSchema"
+    val CSV_MODE: String = "mode"
 
-    val PARQUET = "parquet"
+    val PARQUET: String = "parquet"
   }
 }

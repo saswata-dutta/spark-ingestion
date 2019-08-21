@@ -34,7 +34,11 @@ object BaseSource {
     AppConfig.configProp(config.sourceConfig, key)
 
   def dbProps(config: AppConfig): Map[String, String] =
-    sourceProps(config) -- Seq(AppConfig.KeyNames.TYPE, AppConfig.KeyNames.SSM_PATH)
+    sourceProps(config) -- Seq(
+      AppConfig.KeyNames.TYPE,
+      AppConfig.KeyNames.SSM_PATH,
+      AppConfig.KeyNames.AWS_REGION
+    )
 
   final case class Credentials(user: String, password: String)
 
