@@ -21,6 +21,9 @@ object GenericTransformers {
   ): DataFrame =
     cols.foldLeft(df)((newDf, c) => newDf.transform(Udfs.castCol(c, toType, isCompatible)))
 
+  def castToString(cols: Set[String])(df: DataFrame): DataFrame =
+    cols.foldLeft(df)((newDf, c) => newDf.withColumn(c, col(c).cast(StringType)))
+
   def sanitise(
     timeCols: Set[String],
     numericCols: Set[String],
