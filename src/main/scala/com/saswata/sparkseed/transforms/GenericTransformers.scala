@@ -3,7 +3,7 @@ package com.saswata.sparkseed.transforms
 import com.saswata.sparkseed.util.Strings
 import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions.col
-import org.apache.spark.sql.types.{BooleanType, DataType, DoubleType, StructType}
+import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Column, DataFrame}
 
 import scala.util.Try
