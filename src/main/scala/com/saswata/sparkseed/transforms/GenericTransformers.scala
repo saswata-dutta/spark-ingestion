@@ -3,7 +3,7 @@ package com.saswata.sparkseed.transforms
 import com.saswata.sparkseed.util.Strings
 import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions.col
-import org.apache.spark.sql.types.{BooleanType, DataType, DoubleType, StructType}
+import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Column, DataFrame}
 
 import scala.util.Try
@@ -20,6 +20,9 @@ object GenericTransformers {
     df: DataFrame
   ): DataFrame =
     cols.foldLeft(df)((newDf, c) => newDf.transform(Udfs.castCol(c, toType, isCompatible)))
+
+  def castToString(cols: Set[String])(df: DataFrame): DataFrame =
+    cols.foldLeft(df)((newDf, c) => newDf.withColumn(c, col(c).cast(StringType)))
 
   def sanitise(
     timeCols: Set[String],

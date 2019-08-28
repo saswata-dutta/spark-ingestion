@@ -34,7 +34,11 @@ object BaseSource {
     AppConfig.configProp(config.sourceConfig, key)
 
   def dbProps(config: AppConfig): Map[String, String] =
-    sourceProps(config) -- Seq(AppConfig.KeyNames.TYPE, AppConfig.KeyNames.SSM_PATH)
+    sourceProps(config) -- Seq(
+      AppConfig.KeyNames.TYPE,
+      AppConfig.KeyNames.SSM_PATH,
+      AppConfig.KeyNames.AWS_REGION
+    )
 
   final case class Credentials(user: String, password: String)
 
@@ -50,6 +54,10 @@ object BaseSource {
   def ssmCredentials(config: AppConfig): Credentials = {
     val ssmPath = sourceProp(config, AppConfig.KeyNames.SSM_PATH)
     val awsRegion = sourceProp(config, AppConfig.KeyNames.AWS_REGION)
+    ssmCredentials(ssmPath, awsRegion)
+  }
+
+  def ssmCredentials(ssmPath: String, awsRegion: String): Credentials = {
     val props = SsmClient.getParamsByPath(ssmPath, awsRegion)
     Credentials(props(AppConfig.KeyNames.USER_NAME), props(AppConfig.KeyNames.PASSWORD))
   }

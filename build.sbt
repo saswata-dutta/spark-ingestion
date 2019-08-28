@@ -20,9 +20,14 @@ lazy val sparkDependencies = Seq(
 )
 
 lazy val awsDependencies =
-  Seq("org.apache.hadoop" % "hadoop-aws" % "2.7.3", "com.amazonaws" % "aws-java-sdk" % "1.7.4.2")
+  Seq(
+    "com.amazonaws" % "aws-java-sdk-ssm" % "1.11.562",
+    "org.apache.hadoop" % "hadoop-aws" % "2.7.3",
+    "com.amazonaws" % "aws-java-sdk" % "1.7.4.2"
+  )
 
-libraryDependencies ++= sparkDependencies.map(_ % "provided")
+libraryDependencies ++= (sparkDependencies ++ awsDependencies).map(_ % "provided")
+
 libraryDependencies ++= Seq(
   "com.typesafe" % "config" % "1.3.4",
   "org.mongodb.spark" %% "mongo-spark-connector" % "2.4.0",
@@ -50,8 +55,7 @@ lazy val mainRunner = project
   .dependsOn(RootProject(file(".")))
   .disablePlugins(AssemblyPlugin)
   .settings(
-    libraryDependencies ++= sparkDependencies.map(_ % "compile"),
-    libraryDependencies ++= awsDependencies,
+    libraryDependencies ++= (sparkDependencies ++ awsDependencies).map(_ % "compile"),
     assembly := new File(""),
     publish := {},
     publishLocal := {}

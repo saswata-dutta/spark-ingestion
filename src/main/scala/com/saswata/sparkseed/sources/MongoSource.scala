@@ -16,7 +16,15 @@ object MongoSource extends BaseSource {
     logger.info(mongoProps)
     val readConfig = ReadConfig(mongoProps)
 
-    MongoSpark.load(spark, readConfig)
+    appConfig.explicitSchema.fold(MongoSpark.loadAndInferSchema(spark, readConfig))(
+      schema =>
+        MongoSpark
+          .builder()
+          .sparkSession(spark)
+          .readConfig(readConfig)
+          .build()
+          .toDF(schema)
+    )
   }
 
   def connectionProps(appConfig: AppConfig): Map[String, String] = {

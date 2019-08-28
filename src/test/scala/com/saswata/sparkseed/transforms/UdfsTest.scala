@@ -10,10 +10,10 @@ class UdfsTest extends FunSuite {
   }
 
   test("testToEpochMillis") {
-    assert(Udfs.Funcs.toEpochMsFn(1564736389.08013) === 1564736389080L)
+    assert(Udfs.Funcs.toEpochMsFn("", 1564736389.08013) === 1564736389080L)
 
     val smallEpoch = 156473638L
-    val thrown = intercept[IllegalArgumentException](Udfs.Funcs.toEpochMsFn(smallEpoch))
+    val thrown = intercept[IllegalArgumentException](Udfs.Funcs.toEpochMsFn("", smallEpoch))
     assert(thrown.getMessage contains "Failed to convert Epoch")
     assert(thrown.getMessage contains s"$smallEpoch")
   }

@@ -4,7 +4,7 @@ import com.saswata.sparkseed.util.IstTime.YMDHM
 import com.saswata.sparkseed.util.{IstTime, Strings}
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.expressions.UserDefinedFunction
-import org.apache.spark.sql.functions.{col, udf, when}
+import org.apache.spark.sql.functions.{col, lit, udf, when}
 import org.apache.spark.sql.types.DataType
 
 import scala.util.{Failure, Success, Try}
@@ -19,10 +19,11 @@ object Udfs {
       Option(t).fold("null")(it => Strings.strictSanitise(it.toString))
 
     @SuppressWarnings(Array("org.wartremover.warts.Throw"))
-    val toEpochMsFn: Any => Long = (t: Any) => {
-      IstTime.guessEpochMillis(t) match {
+    val toEpochMsFn: (String, Any) => Long = (col: String, e: Any) => {
+      IstTime.guessEpochMillis(e) match {
         case Success(epoch) => epoch
-        case Failure(ex)    => throw new IllegalArgumentException(s"Failed to convert Epoch $t", ex)
+        case Failure(ex) =>
+          throw new IllegalArgumentException(s"Failed to convert Epoch in $col = $e", ex)
       }
     }
 
@@ -35,7 +36,7 @@ object Udfs {
 
   // udfs
   val toEpochMs: UserDefinedFunction =
-    udf[Long, Any](Funcs.toEpochMsFn)
+    udf[Long, String, Any](Funcs.toEpochMsFn)
 
   val isDouble: UserDefinedFunction =
     udf[Boolean, Any](Funcs.testDouble)
@@ -54,7 +55,7 @@ object Udfs {
     df.withColumn(colName, strSanitiser(col(colName)))
 
   def toEpochMillis(colName: String)(df: DataFrame): DataFrame =
-    df.withColumn(colName, toEpochMs(col(colName)))
+    df.withColumn(colName, toEpochMs(lit(colName), col(colName)))
 
   def castCol(colName: String, toType: DataType, isCompatible: UserDefinedFunction)(
     df: DataFrame
