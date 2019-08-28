@@ -54,6 +54,10 @@ object BaseSource {
   def ssmCredentials(config: AppConfig): Credentials = {
     val ssmPath = sourceProp(config, AppConfig.KeyNames.SSM_PATH)
     val awsRegion = sourceProp(config, AppConfig.KeyNames.AWS_REGION)
+    ssmCredentials(ssmPath, awsRegion)
+  }
+
+  def ssmCredentials(ssmPath: String, awsRegion: String): Credentials = {
     val props = SsmClient.getParamsByPath(ssmPath, awsRegion)
     Credentials(props(AppConfig.KeyNames.USER_NAME), props(AppConfig.KeyNames.PASSWORD))
   }
