@@ -95,3 +95,5 @@ spark-submit --class com.saswata.sparkseed.drivers.GenericIngestJob --conf-file 
 --stop-date "stop time of data partition in yyyy-mm-dd"
 --local "pass 'true' to run locally in intellij, using the 'mainRunner' config"
 ```
+### Submit to AWS EMR:
+Using AWS Cli : https://gist.github.com/saswata-dutta/f456c8519ba01f3b45037ec26caa1d10
